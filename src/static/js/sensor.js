@@ -7,21 +7,23 @@
     					return function(){
 							var knob= null; 
 							var id = null;
-							var elem = null;
+							var elem = null;				
+							var max=25;
+							var min = -25;			
 							return {'update' :function(event){
 												//update time
 												var date = new Date(parseFloat(event.timestamp)*1000);
 												var time = moment(date).format('h:mm:ss a');
 												elem.find('.time').html(time);																																
-												knob.updateValue(event.rfidTemperature,100);
+												knob.updateValue(event.rfidTemperature,100,max,min);
 											},
 									'init': function(rfid){
 												id = rfid.tagNum;
 												var html = templates['type-'+100]({ id:id, name:rfid.displayName,time:'not reported'});
 												demos.append(html);
 												elem = $('#'+id);
-												knob = new Knob("#knob-"+id, 100.00, 100.00, 250, 250,'', ['#EA445A','#fee79b','#2da9dc']);											
-												knob.updateValue(0.00,100);
+												knob = new Knob("#knob-"+id, min, 100.00, 250, 250,'', ['#EA445A','#fee79b','#2da9dc'],max,min);											
+												knob.updateValue(0.00,100,max,min);												
 											}								
 								};
 							
@@ -97,8 +99,7 @@
     		//initialize variables
     		var uptime = $("#uptime");
     		var demo = $('#demo');
-			var knob= new Knob("#knob", 0.00, 0.00, 250, 250,'', ['#EA445A','#fee79b','#2da9dc']);
-    		var rfids = {};
+			var rfids = {};
     		
     		uptime.html('init');
     		

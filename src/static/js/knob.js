@@ -15,15 +15,9 @@
 * Requires:
 *       d3.js
 */
-function Knob(selector, value, delta, width, height, label, colors) {
-    if (value < 0) {
-        this.value = 0;
-    }
-    else if (value > 100) {
-        this.value = 100;
-    } else {
-        this.value = value;
-    }
+function Knob(selector, value, delta, width, height, label, colors,max,min) {
+    
+    this.value = ((value - min) /(max-min)) * 100
     this.selector = selector;
     this.width = width;
     this.height = height;
@@ -114,16 +108,16 @@ function Knob(selector, value, delta, width, height, label, colors) {
 
 }
 
-Knob.prototype.updateValue = function(newValue, delta) {
-    if (newValue < 0) {
+Knob.prototype.updateValue = function(newValue, delta,max,min) {
+    /*if (newValue < 0) {
         return;
-    }
+    }*/
     var old = this.pieSlice(this.value);
     var oldDelta = this.pieSlice(this.delta);
-    this.value = (newValue > 100 ? 100 : newValue);
+    this.value = ((newValue - min) /(max-min)) * 100
+    
     this.delta = delta;
-
-    var tempC = this.colors;
+	var tempC = this.colors;
     var dataArc = this.dataArc;
 
     this.dataPath.data(this.pieSlice(this.value));
@@ -146,7 +140,8 @@ Knob.prototype.updateValue = function(newValue, delta) {
             return function(t) { return dataArc(i(t)); };
         });
 
-    var temp = newValue - old[0].data;
+	var oldData = ((old[0].data)*(max-min))/100 + min;
+    var temp = newValue - oldData;
     d3.select(this.selector).selectAll(".backdrop-text")
         .data([this.delta])
         .text(oldDelta.data)
@@ -155,7 +150,7 @@ Knob.prototype.updateValue = function(newValue, delta) {
         .tween("text", function(d) {
         	console.log(d);
             var i = function(t) {
-                return (old[0].data + temp*t).toFixed(2);
+                return (oldData + temp*t).toFixed(2);
             };
 
             return function(t) {
