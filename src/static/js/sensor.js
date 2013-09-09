@@ -17,7 +17,7 @@
 											},
 									'init': function(rfid){
 												id = rfid.tagNum;
-												var html = templates['type-'+100]({ id:id, name:rfid.displayName});
+												var html = templates['type-'+100]({ id:id, name:rfid.displayName,time:'not reported'});
 												demos.append(html);
 												elem = $('#'+id);
 												knob = new Knob("#knob-"+id, 100.00, 100.00, 250, 250,'', ['#EA445A','#fee79b','#2da9dc']);											
@@ -32,7 +32,7 @@
 					 	return{
 						  		'init':function(rfid){
 						  			id = rfid.tagNum;
-									var html = templates['type-'+400]({ id:id, name:rfid.displayName});
+									var html = templates['type-'+400]({ id:id, name:rfid.displayName,time:'not reported'});
 									demos.append(html);								
 									elem = $('#'+id);
 						  		},
@@ -58,7 +58,7 @@
 					 	return{
 						  		'init':function(rfid){
 						  			id = rfid.tagNum;
-									var html = templates['type-'+300]({ id:id, name:rfid.displayName});
+									var html = templates['type-'+300]({ id:id, name:rfid.displayName, time:'not reported'});
 									demos.append(html);
 									elem = $('#'+id);
 									
