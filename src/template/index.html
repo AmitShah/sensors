@@ -1,0 +1,224 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Sober Steering</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="{{static_url('css/bootstrap.css')}}" rel="stylesheet">
+	<link href="{{static_url('css/custom.css')}}" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="{{static_url('css/navbar.css')}}" rel="stylesheet">
+  </head>
+
+  <body data-spy="scroll" data-target="#navbar" data-offset="50">
+
+    <!-- Fixed navbar -->
+   <div id="navbar" class="navbar navbar-fixed-top navbar-inverse">
+     <div class="container">
+       <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+         <span class="icon-bar"></span>
+         <span class="icon-bar"></span>
+         <span class="icon-bar"></span>
+       </button>
+       <a class="navbar-brand" href="#">Sober Steering</a>
+       <div class="nav-collapse collapse">
+         <ul class="nav navbar-nav">
+           <li class="active"><a href="#intro">Home</a></li>
+           <li><a href="#map">Map</a></li>
+           <li><a href="#featurettes">Buses</a></li>           
+         </ul>
+       </div><!--/.nav-collapse -->
+     </div>
+   </div>
+
+   <div>
+	
+	<section data-speed="2" data-type="background" style="overflow: hidden;" nav-section="1">
+		<div id="video_background">
+			<video autoplay muted loop style=>
+				<source src="{{static_url('video/intro.mp4')}}" type="video/mp4"/>
+			</video>
+			<div id="video_pattern" ></div>			
+		</div><!-- end video-container -->
+    	<div class="container" style="position: relative; z-index: 2;">
+    		<h1 style="font-size: 64pt;">Sober Steering</h1>
+    		<h2>Learn how Sober Steering's technology can keep the roads safe.</h2>
+    		<p>
+  			  <a class="btn btn-primary btn-large learn-more" href="http://sobersteering.com/">Learn More</a>
+  			</p>
+    	</div>
+    </section>
+	<section id="intro" data-speed="2" data-type="background" style="overflow: hidden;" nav-section="1">
+    	<!--img data-speed="4" data-type="foreground" src="{{static_url('img/bus_monochrome.png')}}" style="position:absolute;height: 500px; bottom: 30px; right: 0; z-index: 1;" /-->
+    	<div class="container" style="position: relative; z-index: 2;">
+    		<h1 style="font-size: 64pt;">Sober Steering</h1>
+    		<h2>Learn how Sober Steering's technology can keep the roads safe.</h2>
+    		<p>
+  			  <a class="btn btn-primary btn-large learn-more" href="http://sobersteering.com/">Learn More</a>
+  			</p>
+    	</div>
+    </section>
+    
+  	</div>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>    
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC0Tkk9Gd8ploPqjDWEV1-hupHmKT68f0M&sensor=false"></script>
+  	<script src="{{static_url('js/bootstrap.js')}}"></script>
+    <script src="{{static_url('js/holder.js')}}"></script>
+    
+
+    <script type="text/javascript" src="{{static_url('js/handlebars.runtime.js')}}"></script>
+    <script id="featuretteTemplate" type="text/javascript" src="{{static_url('handlebars/compiled/sensor_template.js')}}"></script>
+
+    <script id="javascript_helpers" type="text/javascript">
+    var numSections = null;
+    var scrollOffset = null;
+
+    function scrollToAnchor(aid){
+      var aTag = $(aid);
+      if (scrollOffset == null) {
+        scrollOffset = -1 * parseInt($("body").attr("data-offset")) + 1;
+      }
+      $('html,body').animate({scrollTop: aTag.offset().top + scrollOffset}, 500);
+    }
+
+    function getActiveSection() {
+      return ($(".navbar-nav .active a").attr("href"));
+    }
+
+    function scrollToPreviousSection() {
+      var active = getActiveSection();
+      var prevSectionNum = $(active).attr("nav-section") - 1;
+
+      if (numSections == null) {
+        numSections = $("[nav-section]").size();
+      }
+
+      if (prevSectionNum > 0) {
+        scrollToAnchor("[nav-section='" + prevSectionNum + "']");
+      }
+      else {
+        scrollToAnchor("[nav-section='" + numSections + "']");
+      }
+    }
+
+    function scrollToNextSection() {
+      var active = getActiveSection();
+      var nextSectionNum = parseInt($(active).attr("nav-section")) + 1;
+
+      if (numSections == null) {
+        numSections = $("[nav-section]").size();
+      }
+
+      if (nextSectionNum <= numSections) {
+        scrollToAnchor("[nav-section='" + nextSectionNum + "']");
+      }
+      else {
+        scrollToAnchor("[nav-section='" + 1 + "']");
+      }
+    }
+    </script>
+
+    <script id="button_handlers" type="text/javascript">
+      var time = new Date().getTime();
+
+      $(document.documentElement).keydown(function (event) {
+        if (event.keyCode == 37 || event.keyCode == 38 || event.keyCode == 39 || event.keyCode == 40) {
+
+          return false;
+        }
+      });
+
+      $(document.documentElement).keyup(function (event) {
+        var now = new Date().getTime();
+
+        // handle cursor keys
+        if (event.keyCode == 37 || event.keyCode == 38) {
+          if (now - time > 500) {
+            scrollToPreviousSection();
+          }
+          time = now;
+          return false;
+        } else if (event.keyCode == 39 || event.keyCode == 40) {
+          if (now - time > 500) {
+            scrollToNextSection();
+          }
+          time = now;
+          return false;
+        }
+      });
+    </script>
+
+    <script type="text/javascript">
+    var featuretteTemplate = Handlebars.templates.sensor_template;
+    console.log($('section'));
+
+    $(document).ready(function(){
+
+      // TEMP HTML FOR NOW...REPLACE WITH REAL DATA
+      
+	   	// cache the window object
+	   	$window = $(window);
+	   
+      $('section[data-type="background"]').each(function(){
+	     // declare the variable to affect the defined data-type
+	     var $scroll = $(this);
+	                     
+	      $(window).scroll(function() {
+	        // HTML5 proves useful for helping with creating JS functions!
+	        // also, negative value because we're scrolling upwards                             
+	        var yPos = -($window.scrollTop() / $scroll.data('speed')); 
+	         
+	        // background position
+	        var coords = '50% '+ yPos + 'px';
+	 
+	        // move the background
+	        $scroll.css({ backgroundPosition: coords });    
+	      }); // end window scroll
+      });  // end section function
+	   
+      $('[data-type="foreground"]').each(function(){
+	     // declare the variable to affect the defined data-type
+	     var $scroll = $(this);
+	                     
+	      $(window).scroll(function() {
+	        // HTML5 proves useful for helping with creating JS functions!
+	        // also, negative value because we're scrolling upwards                             
+	        var yPos = -($window.scrollTop() / $scroll.data('speed')); 
+	         
+	        // bottom position
+	        var pos = 30 + yPos;
+	        var coords = pos + 'px';
+	 
+	        // move the background
+	        $scroll.css({ bottom: coords });    
+        }); // end window scroll
+      });  // end section function
+	   
+      //MAP Styling Custom
+      var styles = [ { "featureType": "landscape", "stylers": [ { "color": "#dddddd" }, { "visibility": "simplified" }, { "saturation": 1 }, 
+      { "lightness": 45 } ] },{ "featureType": "road", "elementType": "geometry", "stylers": [ { "visibility": "simplified" }, { "color": "#ffffff" } ] },{ "featureType": "road", "elementType": "labels.text", "stylers": [ { "visibility": "on" } ] },{ "featureType": "poi", "elementType": "geometry", "stylers": [ { "visibility": "off" } ] },{ "featureType": "water", "stylers": [ { "color": "#c8c8c8" } ] },{ "featureType": "road.highway", "elementType": "labels", "stylers": [ { "visibility": "off" } ] },{ "featureType": "poi", "stylers": [ { "visibility": "off" } ] },{ "featureType": "road.arterial", "stylers": [ { "visibility": "off" } ] },{ "featureType": "transit", "stylers": [ { "visibility": "off" } ] },{ "featureType": "administrative.country", "elementType": "geometry.stroke", "stylers": [ { "visibility": "simplified" }, { "color": "#ffffff" } ] },{ "featureType": "administrative.neighborhood", "elementType": "labels", "stylers": [ { "visibility": "off" } ] },{ "featureType": "landscape", "elementType": "geometry", "stylers": [ { "weight": 0.1 }, { "visibility": "simplified" }, { "color": "#dddddd" }, { "lightness": 45 } ] },{ "featureType": "administrative","elementType": "labels.text", "stylers": [ { "weight": 0.1 }, { "color": "#787878" } ] },{ "featureType": "administrative", "elementType": "labels.icon", "stylers": [ { "visibility": "off" } ] }];
+	   	   
+      var mapOptions = {
+          center: new google.maps.LatLng(-34.397, 150.644),
+          zoom: 8,
+          mapTypeId: google.maps.MapTypeId.ROADMAP,
+          styles:styles,
+          scrollwheel:false
+        };
+      var map = new google.maps.Map(document.getElementById("map"),
+          mapOptions);
+	   
+    }); // close out script
+    </script>
+    <script src="{{static_url('js/state-machine.js')}}"></script>    
+    <script src="{{static_url('js/markerwithlabel.js')}}"></script>        
+    <script src="{{static_url('js/sobersteering.js')}}"></script>    
+  </body>
+</html>
