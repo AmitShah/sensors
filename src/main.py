@@ -12,7 +12,15 @@ from tornado.httpserver import HTTPServer
 from tornado.websocket import WebSocketHandler
 import sys,functools,json
 from threading import Lock
-import datetime
+import datetime,logging
+
+logger = logging.getLogger('sensor_main')
+logger.setLevel(logging.INFO)
+
+fh = logging.FileHandler('sensor.log')
+fh.setLevel(logging.INFO)
+logger.addHandler(fh)
+
 
 '''helper method to handle casting of improper chars'''
 def ignore_exception(IgnoreException=Exception,DefaultVal=None):
@@ -62,13 +70,13 @@ class LineObserver(Observer):
     def notify(self,message):
         try:              
             #prevent multiple async calls from overriding the buffer while in processing  
-            with self.rlock:
-                self.buffer= self.buffer+message
+            with self.rlock:                
+                self.buffer= self.buffer+message                
                 while "\n" in self.buffer:
                     (line, self.buffer) = self.buffer.split("\n", 1)
                     data = line.strip() #remove blank lines (when keep alive is sent from server)
                     if data:
-                        print 'sending:',data
+                        logger.info(('sending buffered data:%s' % self.buffer))
                         Observer.notify(self, data)                            
         except:
             pass
@@ -170,8 +178,9 @@ if __name__ == '__main__':
         pass
     
     def data_handler(sock,fd,events):
-        try:        
+        try:                    
             data = sock.recv(4096)
+            logger.info(('received data:%s' % data))
             UpdateHandler.observer.notify(data)        
         except:
             sock.close()
