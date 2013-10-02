@@ -72,11 +72,11 @@
 									var time = moment(date).format('h:mm:ss a');
 									elem.find('.time').html(time);	
 						  			if(event.statusCode === 62730){
-						  				elem.find('.off').removeClass('active');
-						  				elem.find('.on').addClass('active');
+						  				elem.find('.off').removeClass('rfid-active');
+						  				elem.find('.on').addClass('rfid-active');
 						  			}else{
-						  				elem.find('.on').removeClass('active');
-						  				elem.find('.off').addClass('active');						  			
+						  				elem.find('.on').removeClass('rfid-active');
+						  				elem.find('.off').addClass('rfid-active');						  			
 						  			}
 						  			
 						  		}
@@ -135,9 +135,10 @@
 							}
 							rfids[data.rfidTagNum] = $.fn.rendererFactory(rfidMeta[data.rfidTagNum].rfidTypeCode);						
 							rfids[data.rfidTagNum].init(rfidMeta[data.rfidTagNum]);
-						}else{
-							rfids[data.rfidTagNum].update(data);
-						}										
+						}
+						//update the rfid values	
+						rfids[data.rfidTagNum].update(data);
+																
 					}
         		}
         		catch (err){
