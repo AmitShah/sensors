@@ -144,11 +144,16 @@ class MainHandler(tornado.web.RequestHandler):
     def get(self):
         self.render('temp.html')
   
-class MetaHandler(BaseHandler):    
-    def get(self):
+class RfidsHandler(BaseHandler):    
+    def post(self):
         json_rfid= self.api.call_api("/rfid", {})
         self.write(json_rfid)          
-        
+
+class DevicesHandler(BaseHandler):
+    def post(self):
+        devices = self.api.call_api("/device",{})
+        self.write(devices)
+  
 if __name__ == '__main__':
     
     '''let setup tcp connection to the upstream service to get sensor data 
@@ -208,7 +213,8 @@ if __name__ == '__main__':
         )  
     application = tornado.web.Application([
     (r"/update", UpdateHandler),
-    (r"/meta", MetaHandler, services),
+    (r"/rfids", RfidsHandler, services),
+    (r"/devices", DevicesHandler, services),
     (r"/*", MainHandler),
           
     ], **settings)

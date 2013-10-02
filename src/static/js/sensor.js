@@ -1,7 +1,7 @@
     	$(function(){
     	
     		var demos = $('#demos');
-	 		$.fn.rendererFactory = function(type){
+    		$.fn.rendererFactory = function(type){
     			if(type === 100 || type===500 || type === 600 || type ===700){ //temperature based
     				
     					return function(){
@@ -20,7 +20,8 @@
 									'init': function(rfid){
 												id = rfid.tagNum;
 												var html = templates['type-'+100]({ id:id, name:rfid.displayName,time:'not reported'});
-												demos.append(html);
+												demos.append('<li class="list-group-item">'+html+'</li>');
+									
 												elem = $('#'+id);
 												knob = new Knob("#knob-"+id, min, 100.00, 250, 250,'', ['#EA445A','#fee79b','#2da9dc'],max,min);											
 												knob.updateValue(0.00,100,max,min);												
@@ -35,7 +36,7 @@
 						  		'init':function(rfid){
 						  			id = rfid.tagNum;
 									var html = templates['type-'+400]({ id:id, name:rfid.displayName,time:'not reported'});
-									demos.append(html);								
+									demos.append('<li class="list-group-item">'+html+'</li>');																	
 									elem = $('#'+id);
 						  		},
 						  		'update':function(event){
@@ -61,7 +62,7 @@
 						  		'init':function(rfid){
 						  			id = rfid.tagNum;
 									var html = templates['type-'+300]({ id:id, name:rfid.displayName, time:'not reported'});
-									demos.append(html);
+									demos.append('<li class="list-group-item">'+html+'</li>');
 									elem = $('#'+id);
 									
 						  		},
@@ -99,24 +100,22 @@
     		//initialize variables
     		var uptime = $("#uptime");
     		var demo = $('#demo');
-			var rfids = {};
+			var rfidMeta = {};
+    		var rfids = {};
+    		var filter = "none";
     		
-    		uptime.html('init');
+	 		uptime.html('init');
     		
     		//get rfid meta data
     		var init = function(){
 	    		$.ajax({
-				  url: "/meta",		
+				  url: "/rfids",	
+				  method:"POST",	
 				  dataType: "json",
 				  success: function(meta){
-				  	meta.sort(function(a,b){
-				  		return a.rfidTypeCode - b.rfidTypeCode;
-				  	});
 				  	for(var m in meta){
-				  		rfids[meta[m].tagNum] = $.fn.rendererFactory(meta[m].rfidTypeCode);
-				  		rfids[meta[m].tagNum].init(meta[m]);
+				  		rfidMeta[meta[m].tagNum] = meta[m]; 
 				  	}
-				  	
 					meta = null;
 				 	start();
 				  },
@@ -125,24 +124,21 @@
 				  }	  
 				});
 			};
-			
+			var emptyRfidArea = true;
 			var handle = function(data){	
 				try{
-					if(rfids.hasOwnProperty(data.rfidTagNum)){
-						rfids[data.rfidTagNum].update(data);
-					}				
-					/*var date = new Date(parseFloat(data.timestamp)*1000);
-					uptime.html(moment(date).fromNow());
-					//TODO: handle the different type of sensor states
-					if(data.rfidTemperature){
-						knob.updateValue(parseFloat(data.rfidTemperature),100);
-        			}
-        			switch(rfids[data.rfidTagNum].rfidTypeCode){
-        				case 300:
-        					break;
-        				case 400:
-        					break;
-        			}*/
+					if((filter=== "none" || data.deviceID === filter) && data.hasOwnProperty('rfidTagNum')){
+						if(!rfids.hasOwnProperty(data.rfidTagNum)){
+							if(emptyRfidArea){
+								emptyRfidArea = false;
+								demos.empty();
+							}
+							rfids[data.rfidTagNum] = $.fn.rendererFactory(rfidMeta[data.rfidTagNum].rfidTypeCode);						
+							rfids[data.rfidTagNum].init(rfidMeta[data.rfidTagNum]);
+						}else{
+							rfids[data.rfidTagNum].update(data);
+						}										
+					}
         		}
         		catch (err){
         			uptime.html('error'+err.message);
@@ -166,20 +162,43 @@
 			     		
 			       }catch(err)
 			       {
-				
+					  uptime.html("socket error:"+err.message);
 			       }
-	
-	
 			    };
 			    ws.onclose = function()
-			    { 
-			    	//TODO
-			    	//output connection state
+			    { 			    	
 			    	uptime.html('offline');
-			    	
 			    };
 		   }//end start
 		    
+		   $.ajax({
+			  url: "/devices",		
+			  dataType: "json",
+			  method: "POST",
+			  success: function(data){			  	
+			  	var deviceList = $('#devices');
+			  	for(var d in data){
+			  		deviceList.append('<li><a href="#" id="filter_'+data[d].deviceID+'">'+data[d].deviceID+'</a></li>');
+			  	}			  				  	
+			  	//device filter handler			
+				deviceList.delegate('a', 'click', function(e){
+					var elem = $(this);
+					$('#devices li').removeClass('active');
+					elem.parent().addClass('active');
+					filter = elem.html();
+					e.preventDefault();
+				});
+			  	
+			  },
+			  error : function(e){
+			  	uptime.html('error retreiving templates');
+			  }	  
+			});
+
+			
+			
+		    
+		    //get handlebar templates
 		   	$.ajax({
 			  url: "/static/handlebars/template.handlebars",		
 			  success: function(t){
